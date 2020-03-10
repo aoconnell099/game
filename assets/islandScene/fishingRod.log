@@ -1,0 +1,31 @@
+Exporter version: 6.2.4, Blender version: 2.81 (sub 16)
+========= Conversion from Blender to Babylon.js =========
+	Scene settings used :
+		inline textures     :  false
+		Material Type       :  PBR
+		Positions Precision :  4
+		Normals Precision   :  3
+		UVs Precision       :  3
+		Vert Color Precision:  3
+		Mat Weight Precision:  2
+		texture directory   :  C:\Users\aocon\babylonScenes\babylonJS_Game\assets\islandScene\
+	Python World class constructor completed
+	processing begun of camera (UniversalCamera):  Camera
+	processing begun of mesh:  Fishing_Rod
+		processing begun of material:  Fishing_Rod
+			processing texture fishingRod
+				texture type:  diffuseTexture, mapped using: "UVMap"
+		Custom split normals with tangents being used
+		num positions      :  170
+		num normals        :  170
+		num tangents       :  680
+		num uvs            :  340
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  276
+	processing begun of light (POINT):  Light
+========= Writing of JSON file started =========
+	writing mesh:  Fishing_Rod
+========= Writing of JSON file completed =========
+========= end of processing =========
+elapsed time:  0 min, 0.0987 secs
