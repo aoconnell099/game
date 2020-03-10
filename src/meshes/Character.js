@@ -134,7 +134,7 @@ export default class Character {
       else {
         // this should only be triggered once at the very start of the game
         // TODO: figure out how to dispose of this action to allow for enter to be used elsewhere
-        if(evt.sourceEvent.code == "Enter") {
+        if(evt.sourceEvent.code == "Enter" || evt.sourceEvent.code == 13 || evt.sourceEvent.key == "Enter" || evt.sourceEvent.key == 13) {
           // dispose/clear the blink and stack panel
           clearInterval(blink);
           stackPanel.dispose();
