@@ -8,7 +8,7 @@ Exporter version: 6.2.4, Blender version: 2.81 (sub 16)
 		UVs Precision       :  3
 		Vert Color Precision:  3
 		Mat Weight Precision:  2
-		texture directory   :  C:\Users\aocon\babylonScenes\babylonJS_Game\assets\islandScene\
+		texture directory   :  C:\Users\aocon\babylonScenes\newBabylonJS_Game\assets\islandScene\
 	Python World class constructor completed
 	WARNING: No active camera has been assigned, or is not in a currently selected Blender layer
 	processing begun of mesh:  Grass
@@ -40,17 +40,17 @@ Exporter version: 6.2.4, Blender version: 2.81 (sub 16)
 			processing texture pier
 				texture type:  diffuseTexture, mapped using: "UVMap"
 		Custom split normals with tangents being used
-		num positions      :  1770
-		num normals        :  1770
-		num tangents       :  7080
-		num uvs            :  3540
+		num positions      :  1792
+		num normals        :  1792
+		num tangents       :  7168
+		num uvs            :  3584
 		num uvs2           :  0
 		num colors         :  0
-		num indices        :  3012
+		num indices        :  3036
 ========= Writing of JSON file started =========
 	writing mesh:  Grass
 	writing mesh:  House
 	writing mesh:  Pier
 ========= Writing of JSON file completed =========
 ========= end of processing =========
-elapsed time:  0 min, 0.5536 secs
+elapsed time:  0 min, 0.6503 secs

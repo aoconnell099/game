@@ -31,13 +31,13 @@ export default class Character {
     this.linVel;
 
     // initialize char's position and scaling and create the physics
-    this.character.position = new BABYLON.Vector3(-10.46, 0.21, -29.63);
-    this.character.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+    this.character.position = new BABYLON.Vector3(-10.46, 0.22, -29.63);
+    this.character.scaling = new BABYLON.Vector3(0.2, 0.2, 0.2);
 
     this.camera.target = this.character;
     this.character.physicsImpostor = new BABYLON.PhysicsImpostor(this.character, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 10, restitution: 0, friction: 0 }, this.scene);
-    // this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.7, 0));
-    this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.7, 0));
+    this.character.scaling = new BABYLON.Vector3(0.5, 0.5, 0.5);
+    this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.2, 0));
     this.character.checkCollisions = true;
     this.sitUpAnim.goToFrame(this.skeleton._ranges["ArmatureAction.003"].from+2);
     this.sitUpAnim.pause();
@@ -111,12 +111,14 @@ export default class Character {
     this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, (evt) => {	
       // paused currently handles the state at the very beginning of the game before the player has control
       // should be able to handle in game pause as well -- still needs to be implemented
+      console.log(evt.sourceEvent.code);
+      console.log(evt.sourceEvent.key);
       if(!paused) {  
         // allow the player to sit up by using wasd
         if(sitting && evt.sourceEvent.code !== "KeyR" && evt.sourceEvent.code !== "Enter" && evt.sourceEvent.code !== "KeyP" && evt.sourceEvent.code !== "ArrowLeft" && evt.sourceEvent.code !== "ArrowDown" && evt.sourceEvent.code !== "ArrowRight" && evt.sourceEvent.code !== "ArrowUp"){        
             setTimeout(async () => {
                 var sitUpAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.003"].from+2, this.skeleton._ranges["ArmatureAction.003"].to, false, 1.0);
-                this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.6, 0));
+                this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.1, 0));
                 await sitUpAnim.waitAsync();
                 sitting = false;
                 this.running = false;
@@ -153,7 +155,7 @@ export default class Character {
 
             setTimeout(async () => {
               var sitUpAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.003"].from+2, this.skeleton._ranges["ArmatureAction.003"].to, false, 1.0);
-              this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.6, 0));
+              this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.1, 0));
               await sitUpAnim.waitAsync();
               sitting = false;
               this.running = false;
@@ -212,7 +214,7 @@ export default class Character {
                 if(!sitting){
                     setTimeout(async () => {
                         var sitDownAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.003"].to, this.skeleton._ranges["ArmatureAction.003"].from+2, false, -1.0);
-                        this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.7, 0));
+                        this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.2, 0));
                         await sitDownAnim.waitAsync();
                         sitting = true;
                     });
@@ -220,7 +222,7 @@ export default class Character {
                 else {
                     setTimeout(async () => {
                         var sitUpAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.003"].from+2, this.skeleton._ranges["ArmatureAction.003"].to, false, 1.0);
-                        this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.6, 0));
+                        this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.1, 0));
                         await sitUpAnim.waitAsync();
                         sitting = false;
                         this.running = false;
@@ -421,10 +423,130 @@ export default class Character {
     //}
 
     let footPrintArr = [];
+
+    var testhit;
+    var hitmesh;
+
+    var offsetX;
+    var offsetY;
+    var offsetZ;
+
+
+    /*
+    function vecToLocal(vector, mesh){
+      var m = mesh.getWorldMatrix();
+      var v = BABYLON.Vector3.TransformCoordinates(vector, m);
+      return v;		 
+    }
+      var origin = this.character.position;
+      var vec = new BABYLON.Vector3(0,-1,0);
+      vec = vecToLocal(vec, this.character);
+      // console.log("vectolocal");
+      // console.log(vec);
+  
+      var direction = vec.subtract(origin);
+      direction = BABYLON.Vector3.Normalize(direction);
+
+      var length = 0.3;
+
+      var ray = new BABYLON.Ray(origin, direction, length);
+      var rayHelp = new BABYLON.RayHelper(ray);
+      rayHelp.show(this.character._scene);
+
+      function checkRay(x, y, z, type, character) {
+      // if (testhit != null && type == "front") {
+      //   console.log("prevPos");
+      //   console.log(prevPos);
+      //   prevPos = testhit.pickedPoint;
+      // }
+      // if (type == "front") {
+      //   var origin = new BABYLON.Vector3(character.position.x, character.position.y, character.position.z);
+      // }
+      // else {
+      //   var origin = character.position;
+      // }
+      // var origin = character.position;
+      // // var vec = new BABYLON.Vector3(x,y,z);
+      // // vec = vecToLocal(vec, character);
+      // // // console.log("vectolocal");
+      // // // console.log(vec);
+  
+      // var direction = vec.subtract(origin);
+      // direction = BABYLON.Vector3.Normalize(direction);
+
+      // var length = 0.3;
+  
+      // var ray = new BABYLON.Ray(origin, direction, length);
+
+      function predicate(mesh){
+        if (mesh == character || mesh == ray){ //|| mesh == ground1 || mesh == ground2 || mesh == tempGround
+            return false;
+        }
+        return true;
+      }
+
+      testhit = character._scene.pickWithRay(ray, predicate);
+      hitmesh = testhit.pickedMesh;
+      // uncomment below for ray trace debug
+      
+      if (testhit.hit == true && hitmesh.name != "ray") {
+        if (type == "ground") {
+          // console.log(testhit.distance);
+          // console.log(hitmesh.name);
+          // character.position = new BABYLON.Vector3(character.position.x, testhit.pickedPoint.y+0.3, character.position.z);
+          // character.physicsImpostor.registerOnPhysicsCollide(tempGround.physicsImpostor, function(main, collided) {
+          //     jumping = false;
+          // });
+        }
+      }
+    }//end of checkRay()
+    */
+
+/*
+   function vecToLocal(vector, mesh){
+    var m = mesh.getWorldMatrix();
+    var v = BABYLON.Vector3.TransformCoordinates(vector, m);
+    return v;		 
+    }
+    function checkRay(x, y, z, type, character) {
+        var origin = character.position;
+        var vec = new BABYLON.Vector3(x,y,z);
+        vec = vecToLocal(vec, character);
+
+        var direction = vec.subtract(origin);
+        direction = BABYLON.Vector3.Normalize(direction);
+
+        var length = 0.15;
+
+        var ray = new BABYLON.Ray(origin, direction, length);
+
+        function predicate(mesh){
+            if (mesh == character || mesh == ray){ //|| mesh == ground1 || mesh == ground2 || mesh == tempGround
+                return false;
+            }
+            return true;
+        }
+
+        testhit = character._scene.pickWithRay(ray, predicate);
+        hitmesh = testhit.pickedMesh;
+        // uncomment below for ray trace debug
+        // var rayHelp = new BABYLON.RayHelper(ray);
+        // rayHelp.show(character._scene);
+        if (testhit.hit == true && hitmesh.name != "ray") {
+            if (type == "ground") {
+                
+            }
+            
+        }
+        
+    }//end of checkRay()
+
+    checkRay(0,-1,0, "ground", this.character);
+*/
+
     
     // Check for movement input every frame before it is rendered
     this.scene.onBeforeRenderObservable.add(()=>{
-      
       this.character.rotationQuaternion = null;
       this.keydown = false;
       this.angled = false;
@@ -596,176 +718,186 @@ export default class Character {
 
       }
 
+      //vec = vecToLocal(vec, this.character);
+      // ray.origin = this.character.position;
+      // direction = vec.subtract(origin);
+      // direction = BABYLON.Vector3.Normalize(direction);
+      // ray.direction = direction;
+      // console.log("direction");
+      // console.log(ray.direction);
+      // console.log("origin");
+      // console.log(ray.origin);
+      // checkRay(0,-1,0,"ground",this.character);
+
     }); // end on before render
 
   }// end of the constructor
 
   
 
-  rayTrace() {
-    // use to store the results of the ray trace
-    var testhit;
-    var hitmesh;
+  // rayTrace() {
+  //   // use to store the results of the ray trace
+  //   var testhit;
+  //   var hitmesh;
 
-    // var tempGround = this.scene.getMeshByName("tempGround");
-    // var tempFront = this.scene.getMeshByName("tempFront");
-    // var tempCeiling = this.scene.getMeshByName("tempCeiling");
+  //   var tempGround = this.scene.getMeshByName("tempGround");
+  //   var tempFront = this.scene.getMeshByName("tempFront");
+  //   var tempCeiling = this.scene.getMeshByName("tempCeiling");
 
-    var tempGround = BABYLON.MeshBuilder.CreateBox("tempGround",{ width: 0.5, height: 0.5, depth: 0.5 }, this.scene);
-    tempGround.physicsImpostor = new BABYLON.PhysicsImpostor(
-      tempGround,
-      BABYLON.PhysicsImpostor.BoxImpostor,
-      { mass: 0, restitution: 0, friction: 1 },
-      this.scene
-    );     
-    var tempFront = BABYLON.MeshBuilder.CreateBox("tempFront",{ width: 0.5, height: 0.5, depth: 0.5 }, this.scene);  
-    tempFront.physicsImpostor = new BABYLON.PhysicsImpostor(
-      tempFront,
-      BABYLON.PhysicsImpostor.BoxImpostor,
-      { mass: 0, restitution: 0, friction: 1 },
-      this.scene
-    );   
-    var tempCeiling = BABYLON.MeshBuilder.CreateBox("tempCeiling",{ width: 0.5, height: 0.5, depth: 0.5 }, this.scene); 
-    tempCeiling.physicsImpostor = new BABYLON.PhysicsImpostor(
-      tempCeiling,
-      BABYLON.PhysicsImpostor.BoxImpostor,
-      { mass: 0, restitution: 0, friction: 1 },
-      this.scene
-    ); 
+  //   var tempGround = BABYLON.MeshBuilder.CreateBox("tempGround",{ width: 0.5, height: 0.5, depth: 0.5 }, this.scene);
+  //   tempGround.physicsImpostor = new BABYLON.PhysicsImpostor(
+  //     tempGround,
+  //     BABYLON.PhysicsImpostor.BoxImpostor,
+  //     { mass: 0, restitution: 0, friction: 1 },
+  //     this.scene
+  //   );     
+  //   var tempFront = BABYLON.MeshBuilder.CreateBox("tempFront",{ width: 0.5, height: 0.5, depth: 0.5 }, this.scene);  
+  //   tempFront.physicsImpostor = new BABYLON.PhysicsImpostor(
+  //     tempFront,
+  //     BABYLON.PhysicsImpostor.BoxImpostor,
+  //     { mass: 0, restitution: 0, friction: 1 },
+  //     this.scene
+  //   );   
+  //   var tempCeiling = BABYLON.MeshBuilder.CreateBox("tempCeiling",{ width: 0.5, height: 0.5, depth: 0.5 }, this.scene); 
+  //   tempCeiling.physicsImpostor = new BABYLON.PhysicsImpostor(
+  //     tempCeiling,
+  //     BABYLON.PhysicsImpostor.BoxImpostor,
+  //     { mass: 0, restitution: 0, friction: 1 },
+  //     this.scene
+  //   ); 
     
-    var offsetX;
-    var offsetY;
-    var offsetZ;
+  //   var offsetX;
+  //   var offsetY;
+  //   var offsetZ;
 
-    function vecToLocal(vector, mesh){
-      var m = mesh.getWorldMatrix();
-      var v = BABYLON.Vector3.TransformCoordinates(vector, m);
-      return v;		 
-    }
-    function checkRay(x, y, z, type, batman) {
-      // if (testhit != null && type == "front") {
-      //   console.log("prevPos");
-      //   console.log(prevPos);
-      //   prevPos = testhit.pickedPoint;
-      // }
-      if (type == "front") {
-        var origin = new BABYLON.Vector3(batman.position.x, batman.position.y+0.3, batman.position.z);
-      }
-      else {
-        var origin = batman.position;
-      }
-      var vec = new BABYLON.Vector3(x,y,z);
-      vec = vecToLocal(vec, batman);
-      // console.log("vectolocal");
-      // console.log(vec);
+  //   function vecToLocal(vector, mesh){
+  //     var m = mesh.getWorldMatrix();
+  //     var v = BABYLON.Vector3.TransformCoordinates(vector, m);
+  //     return v;		 
+  //   }
+  //   function checkRay(x, y, z, type, character) {
+  //     // if (testhit != null && type == "front") {
+  //     //   console.log("prevPos");
+  //     //   console.log(prevPos);
+  //     //   prevPos = testhit.pickedPoint;
+  //     // }
+  //     if (type == "front") {
+  //       var origin = new BABYLON.Vector3(character.position.x, character.position.y, character.position.z);
+  //     }
+  //     else {
+  //       var origin = character.position;
+  //     }
+  //     var vec = new BABYLON.Vector3(x,y,z);
+  //     vec = vecToLocal(vec, character);
+  //     // console.log("vectolocal");
+  //     // console.log(vec);
   
-      var direction = vec.subtract(origin);
-      direction = BABYLON.Vector3.Normalize(direction);
+  //     var direction = vec.subtract(origin);
+  //     direction = BABYLON.Vector3.Normalize(direction);
 
-      var length = 3;
+  //     var length = 0.3;
   
-      var ray = new BABYLON.Ray(origin, direction, length);
+  //     var ray = new BABYLON.Ray(origin, direction, length);
 
-      function predicate(mesh){
-        if (mesh == batman || mesh == ray){ //|| mesh == ground1 || mesh == ground2 || mesh == tempGround
-            return false;
-        }
-        return true;
-      }
+  //     function predicate(mesh){
+  //       if (mesh == character || mesh == ray){ //|| mesh == ground1 || mesh == ground2 || mesh == tempGround
+  //           return false;
+  //       }
+  //       return true;
+  //     }
 
-      testhit = batman._scene.pickWithRay(ray, predicate);
-      // if (type == "front") {
-      //   console.log("currPos");
-      //   console.log(currPos);
-      //   currPos = testhit.pickedPoint;
-      // }
-      hitmesh = testhit.pickedMesh;
-      // uncomment below for ray trace debug
-      // var rayHelp = new BABYLON.RayHelper(ray);
-      // rayHelp.show(batman._scene);
-      if (testhit.hit == true && hitmesh.name != "tempGround" && hitmesh.name != "tempFront" && hitmesh.name != "tempCeiling" && hitmesh.name != "ray") {
-        if (type == "ground") {
-          tempGround.position = new BABYLON.Vector3(batman.position.x, testhit.pickedPoint.y-0.25, batman.position.z);
-          batman.physicsImpostor.registerOnPhysicsCollide(tempGround.physicsImpostor, function(main, collided) {
-              jumping = false;
-          });
-        }
-        if (type == "front") {
-          // var rayHelp = new BABYLON.RayHelper(ray);
-          // rayHelp.show(batman._scene);
-          //rayHelp.show(batman._scene);
-          // console.log("front test hit true");
-          // console.log("mesh that was hit");
-          // console.log(hitmesh.name);
-          tempFront.scaling = new BABYLON.Vector3(1, 1, 1);
-          tempFront.physicsImpostor.setScalingUpdated();
-          var posX = -Math.sin(batman.rotation.z) * testhit.distance;
-          var posZ = -Math.cos(batman.rotation.z) * testhit.distance;
-          var incAng = (Math.atan(posZ/posX)*180)/Math.PI;
-          if (testhit.distance - Math.abs(posX) <= testhit.distance - Math.abs(posZ)) { // if true, then we are looking at the object from the left or right and must set the x offset and remove the z offset
-            if (posX >= 0) {
-              offsetX = 0.25;
-            }
-            else if (posX < 0) {
-              offsetX = -0.25;
-            }
-            if (incAng<45 && incAng>-45) { // range from -45 to +45 
-              if (posZ >= 0) {
-                offsetZ = 0.25;
-              }
-              else if (posZ < 0) {
-                offsetZ = -0.25;
-              }
-            }
-            else {
-              offsetZ = 0;
-            } 
-          }
-          else if (testhit.distance - Math.abs(posX) > testhit.distance - Math.abs(posZ)) { // if true, then we are looking at the object from the left or right and must set the x offset and remove the z offset
-            if (posZ >= 0) {
-              offsetZ = 0.25;
-            }
-            else if (posZ < 0) {
-              offsetZ = -0.25;
-            }
-            if ((incAng>45 && incAng<90) || (incAng<-45 && incAng>-90)) { // range from -45 to -90 and +45 to +90
-              if (posX >= 0) {
-                offsetX = 0.25;
-              }
-              else if (posX < 0) {
-                offsetX = -0.25;
-              }
-            }
-            else {
-              offsetX = 0;
-            } 
-          }
-        tempFront.position = new BABYLON.Vector3(posX + batman.position.x + offsetX, batman.position.y+0.1, posZ + batman.position.z + offsetZ); //this.character.position.y - testhit.distance  testhit.pickedPoint.x+offsetX, testhit.pickedPoint.y+.1, testhit.pickedPoint.z+offsetZ
-        }
-        if (type == "ceiling") {
-            tempCeiling.position = new BABYLON.Vector3(testhit.pickedPoint.x, testhit.pickedPoint.y+0.25, testhit.pickedPoint.z); //this.character.position.y - testhit.distance
-        }
-      } // end if (testhit == true)
-      else {
-        if (type == "front") {
-          // var rayHelp = new BABYLON.RayHelper(ray);
-          // rayHelp.show(batman._scene);
-          //rayHelp.show(batman._scene);
-          //console.log("about to scale");
-          tempFront.scaling = new BABYLON.Vector3(0.3, 1, 0.3);
-          tempFront.physicsImpostor.setScalingUpdated();
-          //tempFront.position = new BABYLON.Vector3(this.character.position.x, this.character.position.y+3, this.character.position.z); 
-        }
-        else if (type == "ceiling") {
-          tempCeiling.position = new BABYLON.Vector3(batman.position.x, batman.position.y+3, batman.position.z); 
-        }
-      }
-    }//end of checkRay()
+  //     testhit = character._scene.pickWithRay(ray, predicate);
+  //     // if (type == "front") {
+  //     //   console.log("currPos");
+  //     //   console.log(currPos);
+  //     //   currPos = testhit.pickedPoint;
+  //     // }
+  //     hitmesh = testhit.pickedMesh;
+  //     // uncomment below for ray trace debug
+  //     // var rayHelp = new BABYLON.RayHelper(ray);
+  //     // rayHelp.show(character._scene);
+  //     if (testhit.hit == true && hitmesh.name != "ray") {
+  //       if (type == "ground") {
+  //         console.log(testhit);
+  //         console.log(hitmesh);
+  //         character.position = new BABYLON.Vector3(character.position.x, testhit.pickedPoint.y+0.3, character.position.z);
+  //         character.physicsImpostor.registerOnPhysicsCollide(tempGround.physicsImpostor, function(main, collided) {
+  //             jumping = false;
+  //         });
+  //       }
+  //       if (type == "front") {
+  //         // var rayHelp = new BABYLON.RayHelper(ray);
+  //         // rayHelp.show(character._scene);
+  //         //rayHelp.show(character._scene);
+  //         tempFront.scaling = new BABYLON.Vector3(1, 1, 1);
+  //         tempFront.physicsImpostor.setScalingUpdated();
+  //         var posX = -Math.sin(character.rotation.z) * testhit.distance;
+  //         var posZ = -Math.cos(character.rotation.z) * testhit.distance;
+  //         var incAng = (Math.atan(posZ/posX)*180)/Math.PI;
+  //         if (testhit.distance - Math.abs(posX) <= testhit.distance - Math.abs(posZ)) { // if true, then we are looking at the object from the left or right and must set the x offset and remove the z offset
+  //           if (posX >= 0) {
+  //             offsetX = 0.25;
+  //           }
+  //           else if (posX < 0) {
+  //             offsetX = -0.25;
+  //           }
+  //           if (incAng<45 && incAng>-45) { // range from -45 to +45 
+  //             if (posZ >= 0) {
+  //               offsetZ = 0.25;
+  //             }
+  //             else if (posZ < 0) {
+  //               offsetZ = -0.25;
+  //             }
+  //           }
+  //           else {
+  //             offsetZ = 0;
+  //           } 
+  //         }
+  //         else if (testhit.distance - Math.abs(posX) > testhit.distance - Math.abs(posZ)) { // if true, then we are looking at the object from the left or right and must set the x offset and remove the z offset
+  //           if (posZ >= 0) {
+  //             offsetZ = 0.25;
+  //           }
+  //           else if (posZ < 0) {
+  //             offsetZ = -0.25;
+  //           }
+  //           if ((incAng>45 && incAng<90) || (incAng<-45 && incAng>-90)) { // range from -45 to -90 and +45 to +90
+  //             if (posX >= 0) {
+  //               offsetX = 0.25;
+  //             }
+  //             else if (posX < 0) {
+  //               offsetX = -0.25;
+  //             }
+  //           }
+  //           else {
+  //             offsetX = 0;
+  //           } 
+  //         }
+  //       tempFront.position = new BABYLON.Vector3(posX + character.position.x + offsetX, character.position.y+0.1, posZ + character.position.z + offsetZ); //this.character.position.y - testhit.distance  testhit.pickedPoint.x+offsetX, testhit.pickedPoint.y+.1, testhit.pickedPoint.z+offsetZ
+  //       }
+  //       if (type == "ceiling") {
+  //           tempCeiling.position = new BABYLON.Vector3(testhit.pickedPoint.x, testhit.pickedPoint.y+0.25, testhit.pickedPoint.z); //this.character.position.y - testhit.distance
+  //       }
+  //     } // end if (testhit == true)
+  //     else {
+  //       if (type == "front") {
+  //         // var rayHelp = new BABYLON.RayHelper(ray);
+  //         // rayHelp.show(character._scene);
+  //         //rayHelp.show(character._scene);
+  //         //console.log("about to scale");
+  //         tempFront.scaling = new BABYLON.Vector3(0.3, 1, 0.3);
+  //         tempFront.physicsImpostor.setScalingUpdated();
+  //         //tempFront.position = new BABYLON.Vector3(this.character.position.x, this.character.position.y+3, this.character.position.z); 
+  //       }
+  //       else if (type == "ceiling") {
+  //         tempCeiling.position = new BABYLON.Vector3(character.position.x, character.position.y+3, character.position.z); 
+  //       }
+  //     }
+  //   }//end of checkRay()
 
-    this.scene.onBeforeRenderObservable.add(()=> {
-      checkRay(0,0,-1, "ground", this.character);
-      checkRay(0,13,0, "front", this.character);
-      checkRay(0,0,1, "ceiling", this.character);
-    });
-  }
+  //   this.scene.onBeforeRenderObservable.add(()=> {
+  //     checkRay(0,0,-1, "ground", this.character);
+  //     // checkRay(0,13,0, "front", this.character);
+  //     // checkRay(0,0,1, "ceiling", this.character);
+  //   });
+  // }
 }
