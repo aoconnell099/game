@@ -8,7 +8,7 @@ Exporter version: 6.2.4, Blender version: 2.81 (sub 16)
 		UVs Precision       :  3
 		Vert Color Precision:  3
 		Mat Weight Precision:  2
-		texture directory   :  C:\Users\aocon\babylonScenes\islandGame\assets\character\
+		texture directory   :  C:\Users\aocon\babylonScenes\newBabylonJS_Game\assets\character\
 	Python World class constructor completed
 	WARNING: No active camera has been assigned, or is not in a currently selected Blender layer
 	processing begun of skeleton:  Armature, id:  0
@@ -26,9 +26,13 @@ Exporter version: 6.2.4, Blender version: 2.81 (sub 16)
 		processing action ArmatureAction.001:  in[1 - 30], out[40 - 70]
 		processing action ArmatureAction.002:  in[1 - 19], out[80 - 99]
 		processing action ArmatureAction.003:  in[1 - 15], out[110 - 125]
+		processing action ArmatureAction.004:  in[1 - 40], out[130 - 170]
+		processing action ArmatureAction.005:  in[1 - 30], out[180 - 210]
+		processing action ArmatureAction.006:  in[1 - 10], out[220 - 230]
+		processing action ArmatureAction.007:  in[1 - 10], out[240 - 250]
 	processing begun of mesh:  Character
 		animation processing begun
-			processing action ArmatureAction:  in[1 - 30], out[0 - 30]
+			processing action ArmatureAction.004:  in[1 - 40], out[0 - 40]
 		processing begun of material:  palette.010
 		processing begun of material:  palette.009
 		processing begun of material:  palette.004
@@ -69,4 +73,4 @@ Exporter version: 6.2.4, Blender version: 2.81 (sub 16)
 	writing mesh:  Character
 ========= Writing of JSON file completed =========
 ========= end of processing =========
-elapsed time:  0 min, 1.2156 secs
+elapsed time:  0 min, 0.5802 secs

@@ -60,7 +60,6 @@ export default class IslandScene {
     
     BABYLON.DefaultLoadingScreen.prototype.hideLoadingUI = function(){
         document.getElementById("customLoadingScreenDiv").style.display = "none";
-        console.log("scene is now loaded");
     }
   } //end constructor
 
@@ -302,7 +301,6 @@ export default class IslandScene {
     this.engine.displayLoadingUI();
 
     this.initEnv();
-    console.log("init Env");
 
     // set camFocusDebug to true to control camera focus with GUI
     var camFocusDebug = false;
@@ -475,7 +473,10 @@ export default class IslandScene {
         scene.getMaterialByName("waterMaterial").addToRenderList(scene.getMeshByName("Character"));
         scene.getMaterialByName("waterMaterial").addToRenderList(scene.getMeshByName("Pier"));
         scene.getMaterialByName("waterMaterial").addToRenderList(scene.getMeshByName("Fishing_Rod"));
-
+        scene.getMeshByName("Fishing_Rod").rotation = new BABYLON.Vector3(140*Math.PI/180, 95*Math.PI/180, 142*Math.PI/180);
+        scene.getMeshByName("Fishing_Rod").position.x += 0.35;
+        scene.getMeshByName("Fishing_Rod").position.y += 0.05;
+        scene.getMeshByName("Fishing_Rod").position.z -=0.05;
         // scene.getLightByName("aspotLight2").includedOnlyMeshes = [scene.getMeshByName("Batman")];
         // scene.autoClear = false; // Color buffer
         // scene.autoClearDepthAndStencil = false; // Depth and stencil, obviously
@@ -536,13 +537,30 @@ export default class IslandScene {
                 mesh.setEnabled(false);
                 // mesh.isVisible = false;
             }
-            else if (mesh.name.match(/Grass/g) || mesh.name.match(/House/g) || mesh.name.match(/Pier/g)) {
-                mesh.position.y +=0.05
+            else if (mesh.name.match(/Grass/g)) {
+                mesh.position.y +=0.06;
+                mesh.scaling.z = 0.5;
                 mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.MeshImpostor,{mass:0, friction:1, restitution: 0},scene);
                 mesh.receiveShadows = true;
                 mesh.checkCollisions = false;
                 mesh.freezeWorldMatrix();
             }
+            else if ( mesh.name.match(/House/g)) {
+                mesh.position.y +=0.04
+                mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.MeshImpostor,{mass:0, friction:1, restitution: 0},scene);
+                mesh.receiveShadows = true;
+                mesh.checkCollisions = false;
+                mesh.freezeWorldMatrix();
+            }
+            else if ( mesh.name.match(/Pier/g)) {
+                mesh.position.y +=0.03
+                mesh.scaling.z -=0.1;
+                mesh.physicsImpostor = new BABYLON.PhysicsImpostor(mesh, BABYLON.PhysicsImpostor.MeshImpostor,{mass:0, friction:1, restitution: 0},scene);
+                mesh.receiveShadows = true;
+                mesh.checkCollisions = false;
+                mesh.freezeWorldMatrix();
+            }
+            
             //mesh.material.maxSimultaneousLights = 16;
         });
         if(!cascadingShadowMap) {
@@ -589,6 +607,13 @@ export default class IslandScene {
                     let targetMesh = scene.getMeshByName("Grass");
                     let clumpPositionX = targetMesh.position.x+6.5 - Math.random()*13;
                     let clumpPositionZ = targetMesh.position.z+6.5 - Math.random()*13;
+                    while(clumpPositionX < 0 && clumpPositionX > -3) {
+                        clumpPositionX = targetMesh.position.x+6.5 - Math.random()*13;
+                    }
+                    while(clumpPositionZ > 1 && clumpPositionZ < 3) {
+                        clumpPositionZ = targetMesh.position.z+6.5 - Math.random()*13;
+                    }
+                    
                     for (var j = 0; j < instanceNum; j++) {
                         offsetX = 1 - Math.random() * 2; 
                         offsetZ = 1 - Math.random() * 2;
@@ -614,6 +639,13 @@ export default class IslandScene {
                     let targetMesh = scene.getMeshByName("Grass");
                     offsetX = 6 - Math.random()*12;
                     offsetZ = 6 - Math.random()*12;
+                    // checkRay(0,-1,0,"ground",new BABYLON.Vector3(offsetX, 2.5, offsetZ));
+                    while(offsetX < 0 && offsetX > -3) {
+                        offsetX = 6 - Math.random()*12;
+                    }
+                    while(offsetZ > 1 && offsetZ < 3) {
+                        offsetZ = 6 - Math.random()*12;
+                    }
                     let instance = mesh.createInstance(mesh.name + "_" + i);
                     instance.scaling = (new BABYLON.Vector3(0.1, 0.1, 0.04));
                     instance.position.x = targetMesh.position.x + offsetX;
@@ -640,9 +672,9 @@ export default class IslandScene {
     //this.showNormals(batman, null, null);
 
     // this show the inspector, uncomment to use it
-    this.scene.debugLayer.show({
-        embedMode: true
-    });
+    // this.scene.debugLayer.show({
+    //     embedMode: true
+    // });
     
   }
 
