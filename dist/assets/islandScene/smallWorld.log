@@ -1,0 +1,56 @@
+Exporter version: 6.2.4, Blender version: 2.81 (sub 16)
+========= Conversion from Blender to Babylon.js =========
+	Scene settings used :
+		inline textures     :  false
+		Material Type       :  PBR
+		Positions Precision :  4
+		Normals Precision   :  3
+		UVs Precision       :  3
+		Vert Color Precision:  3
+		Mat Weight Precision:  2
+		texture directory   :  C:\Users\aocon\babylonScenes\newBabylonJS_Game\assets\islandScene\
+	Python World class constructor completed
+	WARNING: No active camera has been assigned, or is not in a currently selected Blender layer
+	processing begun of mesh:  Grass
+		processing begun of material:  Grass
+			processing texture grass4Corner
+				texture type:  diffuseTexture, mapped using: "UVMap"
+		Custom split normals with tangents being used
+		num positions      :  1738
+		num normals        :  1738
+		num tangents       :  6952
+		num uvs            :  3476
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  3270
+	processing begun of mesh:  House
+		processing begun of material:  House
+			processing texture chata
+				texture type:  diffuseTexture, mapped using: "UVMap"
+		Custom split normals with tangents being used
+		num positions      :  2877
+		num normals        :  2877
+		num tangents       :  11508
+		num uvs            :  5754
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  5376
+	processing begun of mesh:  Pier
+		processing begun of material:  Pier
+			processing texture pier
+				texture type:  diffuseTexture, mapped using: "UVMap"
+		Custom split normals with tangents being used
+		num positions      :  1792
+		num normals        :  1792
+		num tangents       :  7168
+		num uvs            :  3584
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  3036
+========= Writing of JSON file started =========
+	writing mesh:  Grass
+	writing mesh:  House
+	writing mesh:  Pier
+========= Writing of JSON file completed =========
+========= end of processing =========
+elapsed time:  0 min, 0.6503 secs

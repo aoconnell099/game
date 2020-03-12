@@ -1,0 +1,72 @@
+Exporter version: 6.2.4, Blender version: 2.81 (sub 16)
+========= Conversion from Blender to Babylon.js =========
+	Scene settings used :
+		inline textures     :  false
+		Material Type       :  STD
+		Positions Precision :  4
+		Normals Precision   :  3
+		UVs Precision       :  3
+		Vert Color Precision:  3
+		Mat Weight Precision:  2
+		texture directory   :  C:\Users\aocon\babylonScenes\islandGame\assets\character\
+	Python World class constructor completed
+	WARNING: No active camera has been assigned, or is not in a currently selected Blender layer
+	processing begun of skeleton:  Armature, id:  0
+		processing begun of bone:  Bone, index:  0
+		processing begun of bone:  Bone.007, index:  1
+		processing begun of bone:  Bone.008, index:  2
+		processing begun of bone:  Bone.009, index:  3
+		processing begun of bone:  Bone.001, index:  4
+		processing begun of bone:  Bone.004, index:  5
+		processing begun of bone:  Bone.002, index:  6
+		processing begun of bone:  Bone.003, index:  7
+		processing begun of bone:  Bone.005, index:  8
+		processing begun of bone:  Bone.006, index:  9
+		processing action ArmatureAction:  in[1 - 30], out[0 - 30]
+		processing action ArmatureAction.001:  in[1 - 30], out[40 - 70]
+		processing action ArmatureAction.002:  in[1 - 19], out[80 - 99]
+		processing action ArmatureAction.003:  in[1 - 15], out[110 - 125]
+	processing begun of mesh:  Character
+		animation processing begun
+			processing action ArmatureAction:  in[1 - 30], out[0 - 30]
+		processing begun of material:  palette.010
+		processing begun of material:  palette.009
+		processing begun of material:  palette.004
+		processing begun of material:  palette.005
+		processing begun of material:  palette.006
+		processing begun of material:  palette.007
+		processing begun of material:  palette.008
+			processing texture mouth
+				texture type:  diffuseTexture, mapped using: "UVMap"
+			processing texture fiddlerSegmented_6
+				texture type:  diffuseTexture, mapped using: "UVMap"
+			processing texture fiddlerSegmented_0
+				texture type:  diffuseTexture, mapped using: "UVMap"
+			processing texture fiddlerSegmented_1
+				texture type:  diffuseTexture, mapped using: "UVMap"
+			processing texture fiddlerSegmented_2
+				texture type:  diffuseTexture, mapped using: "UVMap"
+			processing texture fiddlerSegmented_3
+				texture type:  diffuseTexture, mapped using: "UVMap"
+			processing texture fiddlerSegmented_4
+				texture type:  diffuseTexture, mapped using: "UVMap"
+		processing begun of multimaterial:  fiddlerJoinedSimple.Multimaterial#0
+		Custom split normals with tangents being used
+		num positions      :  1906
+		num normals        :  1906
+		num tangents       :  7624
+		num uvs            :  3812
+		num uvs2           :  0
+		num colors         :  0
+		num indices        :  2970
+		Skeleton stats:  
+			Total Influencers:  2447
+			Avg # of influencers per vertex:  1.2838
+			Highest # of influencers observed:  5, num vertices with this:  1
+			exported as 5 influencers
+			num skeletonWeights and skeletonIndices:  15248
+========= Writing of JSON file started =========
+	writing mesh:  Character
+========= Writing of JSON file completed =========
+========= end of processing =========
+elapsed time:  0 min, 1.504 secs
