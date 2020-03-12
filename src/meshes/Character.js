@@ -115,7 +115,7 @@ export default class Character {
         text1.text = (text1.text == "Press Enter to Begin" ? "" : "Press Enter to Begin");
     }, 1000);
 
-    var music = new BABYLON.Sound("IslandTheme", "assets/IslandScene/music/islandSong.mp3", this.scene, null, {
+    var music = new BABYLON.Sound("IslandTheme", "assets/islandScene/music/islandSong.mp3", this.scene, null, {
       loop: true,
       autoplay: true
     });
