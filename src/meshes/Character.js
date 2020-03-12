@@ -52,7 +52,7 @@ export default class Character {
     let midAir = false;
     let prevMidAir = false;
     let landingParticles = false;
-    let isMusicPlaying = true;
+    let isMusicPlaying = false;
     let physImpArr = [];
     this.scene.meshes.forEach((mesh) => {
       //console.log(mesh.name);
@@ -117,7 +117,7 @@ export default class Character {
 
     var music = new BABYLON.Sound("IslandTheme", "assets/islandScene/music/islandSong.mp3", this.scene, null, {
       loop: true,
-      autoplay: true
+      autoplay: false
     });
 
     // control key press actions here
