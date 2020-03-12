@@ -41,17 +41,35 @@ export default class IslandScene {
         
         this._loadingDiv = document.createElement("div");
         this._loadingDiv.id = "customLoadingScreenDiv";
-        this._loadingDiv.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Loadingsome.gif/600px-Loadingsome.gif' />";
+        // this._loadingDiv.innerHTML = "<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Loadingsome.gif/600px-Loadingsome.gif' />";  'https://i.imgur.com/RInpXf0.gif'
+        this._loadingDiv.innerHTML = "<img src='assets/islandScene/loadingScreen/cube.gif' /> <div id='loadingScreenPercent' style='position: absolute; left: 45%; bottom: 15px;'>Loading...</div>";
+        // fetch('assets/IslandScene/loadingScreen/loadingScreen.html')
+        //     .then(function(response) {
+        //         return response.text();
+        //     })
+        //     .then(function(body) {
+        //         document.querySelector('#customLoadingScreenDiv').innerHTML = body;
+        //     });
         var customLoadingScreenCss = document.createElement('style');
         customLoadingScreenCss.type = 'text/css';
+        // fetch('assets/IslandScene/loadingScreen/loadingScreenStyle.css')
+        //     .then(function(response) {
+        //         return response.text();
+        //     })
+        //     .then(function(body) {
+        //         customLoadingScreenCss.innerHTML = body;
+        //     });
         customLoadingScreenCss.innerHTML = `
         #customLoadingScreenDiv{
-            background-color: #FFFFFFcc;
+            background-color: #1f1f1f;
             color: white;
             font-size:50px;
+            font-family: 'EB Garamond', serif;
             text-align:center;
+            opacity: 1;
+            transition: 2s ease;
         }
-        `;
+        `;//font-family: 'EB Garamond', serif;
         document.getElementsByTagName('head')[0].appendChild(customLoadingScreenCss);
         this._resizeLoadingUI();
         window.addEventListener("resize", this._resizeLoadingUI);
@@ -59,7 +77,15 @@ export default class IslandScene {
     };
     
     BABYLON.DefaultLoadingScreen.prototype.hideLoadingUI = function(){
-        document.getElementById("customLoadingScreenDiv").style.display = "none";
+        document.getElementById("customLoadingScreenDiv").style.opacity = 0;
+        var myFunction = function(){
+            document.getElementById("customLoadingScreenDiv").style.display = 'none';
+        }
+        // Code for Safari 3.1 to 6.0
+        document.getElementById("customLoadingScreenDiv").addEventListener("webkitTransitionEnd", myFunction);
+
+        // Standard syntax
+        document.getElementById("customLoadingScreenDiv").addEventListener("transitionend", myFunction);
     }
   } //end constructor
 

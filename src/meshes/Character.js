@@ -52,6 +52,7 @@ export default class Character {
     let midAir = false;
     let prevMidAir = false;
     let landingParticles = false;
+    let isMusicPlaying = true;
     let physImpArr = [];
     this.scene.meshes.forEach((mesh) => {
       //console.log(mesh.name);
@@ -62,7 +63,9 @@ export default class Character {
     });
     this.character.physicsImpostor.registerOnPhysicsCollide(physImpArr, function(main, collided) {
       jumping = false;
-      midAir= false;
+      midAir = false;
+      inWater = false;
+      swimming = false;
     });
 
     //create the input map and action manager to detect keyboard input
@@ -112,6 +115,11 @@ export default class Character {
         text1.text = (text1.text == "Press Enter to Begin" ? "" : "Press Enter to Begin");
     }, 1000);
 
+    var music = new BABYLON.Sound("IslandTheme", "assets/IslandScene/music/islandSong.mp3", this.scene, null, {
+      loop: true,
+      autoplay: true
+    });
+
     // control key press actions here
     // physics logic is handled after through the input map -- might be easier to handle it all here
     this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, (evt) => {	
@@ -136,7 +144,7 @@ export default class Character {
           inputMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
           inputMap[evt.sourceEvent.code] = evt.sourceEvent.type == "keydown";             
         }	
-      }
+      }/*
       else {
         // this should only be triggered once at the very start of the game
         // TODO: figure out how to dispose of this action to allow for enter to be used elsewhere
@@ -176,7 +184,7 @@ export default class Character {
             });
           }, 2000);
         }
-      }						
+      }*/						
     }));
 
     // set input map values to false on key up
@@ -185,8 +193,6 @@ export default class Character {
         inputMap[evt.sourceEvent.code] = evt.sourceEvent.type == "keydown";
     }));
 
-    // allow the player to jump
-    // TODO: finish jump anim and implement dustsps cloud when you hit the ground
     this.scene.actionManager.registerAction(
       new BABYLON.ExecuteCodeAction(
           {
@@ -194,74 +200,62 @@ export default class Character {
               parameter: 32
           },
           () => {
-              if(!jumping){
-                // console.log("jump");
+              if(!jumping && !paused && !sitting){
+                // this.scene.getPhysicsEngine().setGravity(new BABYLON.Vector3(0,-9.81,0));
+                // inWater = false;
+                // swimming = false;
                 jumping = true;
-                // let linVel = this.character.physicsImpostor.getLinearVelocity();
-                // let prevVel = linVel;
-                
                 this.character.physicsImpostor.applyImpulse(this.jumpImpulse, this.character.position);
-                // var jumpAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.005"].from+2, this.skeleton._ranges["ArmatureAction.005"].to, false, 1.5);
-                
-                
-                
-                
-                // var landingCheck = setInterval(() => {
-                //   console.log(linVel.y);
-                //   prevVel = linVel;
-                //   linVel = this.character.physicsImpostor.getLinearVelocity();
-                //   if(linVel.y < 0.1 && linVel.y > -0.1 && prevVel.y <= -0.1) {
-                //     console.log("landed")
-                //     jumpAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.005"].to-4, this.skeleton._ranges["ArmatureAction.005"].to, false, 2);
-                //     clearInterval(landingCheck);
-                //   }
-                // }, 100);
-                // setTimeout(async () => {
-                //   var risingAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.006"].from, this.skeleton._ranges["ArmatureAction.006"].to, false, 3); 
-                //   await risingAnim.waitAsync();
-                //   //risingAnim.goToFrame(this.skeleton._ranges["ArmatureAction.006"].to);
-                // });
-
-                // setInterval(() => {
-                  // prevVel = linVel;
-                  // linVel = this.character.physicsImpostor.getLinearVelocity();
-                  
-                //   if(linVel <= 0) {
-                //     setTimeout(async () => {
-                //       var fallingAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.007"].from, this.skeleton._ranges["ArmatureAction.007"].to, false, 1);
-                //       fallingAnim.goToFrame(this.skeleton._ranges["ArmatureAction.007"].from);
-                //       console.log(linVel);
-                //       console.log(testhit.distance);
-                //       while (prevVel <= 0 && testhit.distance >= 0.2){}
-                //       if(prevVel <= 0 && testhit.distance <= 0.2) {
-                //         fallingAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.007"].from, this.skeleton._ranges["ArmatureAction.007"].to, false, 1);
-                //         await fallingAnim.waitAsync();
-                //       }
-                //       //await fallingAnim.waitAsync();
-                      
-                //     });
-                    
-                //   }
-                // }, 50);
-                
-                // risingAnim.onAnimationEnd(() => {
-                //   risingAnim.goToFrame(this.skeleton._ranges["ArmatureAction.006"].to);
-                // });
-                
-                
-                
-                //let skeleton = this.scene.getSkeletonByName("Armature");
-                //var runAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.002"].from+2, this.skeleton._ranges["ArmatureAction.002"].to, false, 1);
-                  
-                  // setTimeout(async () => {
-                  //     var sitDownAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.003"].to, this.skeleton._ranges["ArmatureAction.003"].from+2, false, -1.0);
-                  //     this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.7, 0));
-                  //     console.log("before sit down");
-                  //     await sitDownAnim.waitAsync();
-                  //     console.log("after sit down");
-                  //     sitting = true;
-                  // });
               }
+          }
+      )
+    );
+
+    // allow the player to jump
+    // TODO: finish jump anim and implement dustsps cloud when you hit the ground
+    this.scene.actionManager.registerAction(
+      new BABYLON.ExecuteCodeAction(
+          {
+              trigger: BABYLON.ActionManager.OnKeyUpTrigger,
+              parameter: 13
+          },
+          () => {
+            if(paused){
+              // dispose/clear the blink and stack panel
+              clearInterval(blink);
+              stackPanel.dispose();
+              this.scene.getCameraByName("camera1").useAutoRotationBehavior = false;
+
+              // makeshift camera animation to rotate and focus on the player
+              let iterNum = 50
+              let alphaChangeAmount = ((this.camera.alpha)%(2*Math.PI) - (-Math.PI/2))/iterNum;
+              let betaChangeAmount = (this.camera.beta - 1.5)/iterNum;
+
+              // update the alpha and beta linearly every 40 ms for 2 seconds then stop and sit up and give control of the scene to the player
+              var startAnim = setInterval(() => {
+                this.camera.alpha -= alphaChangeAmount;
+                this.camera.beta -= betaChangeAmount;
+              }, 40);
+              setTimeout(() => {
+                clearInterval(startAnim);
+
+                setTimeout(async () => {
+                  var sitUpAnim = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.003"].from+2, this.skeleton._ranges["ArmatureAction.003"].to, false, 1.0);
+                  this.character.physicsImpostor.setDeltaPosition(new BABYLON.Vector3(0,-0.1, 0));
+                  await sitUpAnim.waitAsync();
+                  sitting = false;
+                  this.running = false;
+                  this.standing = false;
+                  this.scene.activeCamera.attachControl(document.getElementById('renderCanvas'), true);
+                  paused = false;
+                  this.scene.getPhysicsEngine().setGravity(new BABYLON.Vector3(0,-9.81,0));
+                  this.scene.getMeshByName("Fishing_Rod").detachFromBone(this.scene.getBoneByName("Bone.004"));
+                  this.scene.getMeshByName("Fishing_Rod").rotation = new BABYLON.Vector3(0, Math.PI/4, 0);
+                  this.scene.getMeshByName("Fishing_Rod").position = new BABYLON.Vector3(this.character.position.x+0.6, this.character.position.y-0.1, this.character.position.z+0.5);
+
+                });
+              }, 2000);
+            }
           }
       )
     );
@@ -297,6 +291,27 @@ export default class Character {
             }
         )
     );
+
+    // allow the player to toggle music using m
+    this.scene.actionManager.registerAction(
+      new BABYLON.ExecuteCodeAction(
+          {
+              trigger: BABYLON.ActionManager.OnKeyUpTrigger,
+              parameter: 'm'
+          },
+          () => {
+              if (isMusicPlaying) {
+                music.pause();
+                isMusicPlaying = false;
+              }
+              else {
+                music.play();
+                isMusicPlaying = true;
+              }
+          }
+      )
+    );
+    
 
     // allow fly mode to be turned on with u
     this.scene.actionManager.registerAction(
@@ -619,6 +634,8 @@ export default class Character {
     let currGroundType = {};
     let rayHitPos = {};
     let swimming = false;
+    let floating = false;
+    let inWater = false;
     let waterPos = {};
 
     
@@ -639,13 +656,13 @@ export default class Character {
         var direction = vec.subtract(origin);
         direction = BABYLON.Vector3.Normalize(direction);
 
-        if (type == "water") {
-          var length = 0.01
-        }
-        else if (type == "ground") {
-          var length = 0.15;
-        }
-
+        // if (type == "water") {
+        //   var length = 0.01
+        // }
+        // else if (type == "ground") {
+        //   var length = 0.15;
+        // }
+        var length = 0.15;
         var ray = new BABYLON.Ray(origin, direction, length);
 
         function predicate(mesh){
@@ -670,7 +687,7 @@ export default class Character {
             case "water":
               swimming = true;
               //console.log(testhit);
-              waterPos = testhit.picketPoint;
+              //waterPos = testhit.picketPoint;
               break;
             default:
               currGroundType = hitmesh.name;
@@ -757,20 +774,29 @@ export default class Character {
       // direction = vec.subtract(origin);
       // direction = BABYLON.Vector3.Normalize(direction);
       // ray.direction = direction;
+      
       checkRay(0,-1,0, "ground", this.character);
+      
+      
       //checkRay(0,-1,0, "water", this.character);
 
       if(!sitting) {
+        //var inWater = this.character.position.y <= this.scene.getMeshByName("waterMesh").position.y ? true : false;
         if(this.keydown){
-          var swimming = currGroundType == "waterMesh" ? true : false;
+          
           var footprintOn = ((currGroundType == "sand_merged" || currGroundType.match(/footPrint/g) || currGroundType.match(/footPrint_\d/g)) && !jumping) ? true : false;
-          // if(swimming) {
-          //   let waterMaterial = this.scene.getMaterialByName("waterMaterial");
-          //   let time = waterMaterial._lastTime / 100000;
-          //   let x = this.character.position.x;
-          //   let z = this.character.position.z;
-          //   this.character.position.y = Math.abs((Math.sin(((x / 0.05) + time * waterMaterial.waveSpeed)) * waterMaterial.waveHeight * waterMaterial.windDirection.x * 5.0) + (Math.cos(((z / 0.05) +  time * waterMaterial.waveSpeed)) * waterMaterial.waveHeight * waterMaterial.windDirection.y * 5.0));
-          //   // this.character.position.y = waterPos.y+0.011;
+          
+          // if(inWater) { // put a floating var in 
+          //   console.log("swimming");
+          //   if(!swimming) {
+          //     swimming = true;
+          //     floating = false;
+          //     this.scene.getPhysicsEngine().setGravity(new BABYLON.Vector3(0,0,0));
+          //     this.character.position.y = this.scene.getMeshByName("waterMesh").position.y-0.1;
+          //     this.character.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, 0));
+          //     // this.character.position.y = waterPos.y+0.011;
+          //   }
+            
           // }
           if(jumping) {
             if(!midAir) {
@@ -793,13 +819,27 @@ export default class Character {
         
             smokeSPS.initParticles();
           }
+          // else if(inWater) {
+          //   let waterMaterial = this.scene.getMaterialByName("waterMaterial");
+          //   let time = waterMaterial._lastTime / 100000;
+          //   let x = this.character.position.x;
+          //   let z = this.character.position.z;
+          //   this.character.position.y = Math.abs((Math.sin(((x / 0.05) + time * waterMaterial.waveSpeed)) * waterMaterial.waveHeight * waterMaterial.windDirection.x * 5.0) + (Math.cos(((z / 0.05) +  time * waterMaterial.waveSpeed)) * waterMaterial.waveHeight * waterMaterial.windDirection.y * 5.0))-0.2;
+          //   // this.character.position.y = waterPos.y+0.011;
+          // }
+          // else if(swimming) {
+          //   console.log("swimming");
+          //   this.character.position.y = this.scene.getMeshByName("waterMesh").position.y-0.1;
+          //   this.character.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(linVel.x, 0, linVel.z));
+          //   // this.character.position.y = waterPos.y+0.011;
+          // }
           else if(!this.running){ 
             this.running = true;
             this.standing = false;
 
             var runAnimStart = this.scene.beginAnimation(this.skeleton, 82, 85, false, 1.2);
             runAnimStart.onAnimationEnd = () => {
-              this.runAnimLoop = this.scene.beginAnimation(this.skeleton, 86, 98, true, 1.1);
+            this.runAnimLoop = this.scene.beginAnimation(this.skeleton, 86, 98, true, 1.1);
             }
             // var runAnimStart = this.scene.beginAnimation(this.skeleton, this.skeleton._ranges["ArmatureAction.002"].from+2, this.skeleton._ranges["ArmatureAction.002"].from+7, false, 1.2);
             // runAnimStart.onAnimationEnd = () => {
@@ -840,6 +880,18 @@ export default class Character {
           } // end the footprint clone creation
         }
         else{
+          // if(inWater) { // put a floating var in 
+          //   console.log("swimming");
+          //   if(!floating) {
+          //     floating = true;
+          //     swimming = false;
+          //     this.scene.getPhysicsEngine().setGravity(new BABYLON.Vector3(0,0,0));
+          //     this.character.position.y = this.scene.getMeshByName("waterMesh").position.y-0.1;
+          //     this.character.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, 0));
+          //     // this.character.position.y = waterPos.y+0.011;
+          //   }
+            
+          // }
           if(jumping) {
             if(!midAir) {
               midAir = true;
@@ -863,6 +915,20 @@ export default class Character {
         
             smokeSPS.initParticles();
           }
+          // else if(inWater) {
+          //   let waterMaterial = this.scene.getMaterialByName("waterMaterial");
+          //   let time = waterMaterial._lastTime / 100000;
+          //   let x = this.character.position.x;
+          //   let z = this.character.position.z;
+          //   this.character.position.y = Math.abs((Math.sin(((x / 0.05) + time * waterMaterial.waveSpeed)) * waterMaterial.waveHeight * waterMaterial.windDirection.x * 5.0) + (Math.cos(((z / 0.05) +  time * waterMaterial.waveSpeed)) * waterMaterial.waveHeight * waterMaterial.windDirection.y * 5.0))-0.2;
+          //   // this.character.position.y = waterPos.y+0.011;
+          // }
+          // else if(swimming) { // put a floating var in 
+          //   console.log("swimming");
+          //   this.character.position.y = this.scene.getMeshByName("waterMesh").position.y-0.1;
+          //   this.character.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, 0));
+          //   // this.character.position.y = waterPos.y+0.011;
+          // }
           else if (!this.standing & !jumping) { 
               this.running = false;
               this.standing = true;
