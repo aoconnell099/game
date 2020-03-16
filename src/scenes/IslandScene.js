@@ -121,7 +121,7 @@ export default class IslandScene {
     
     var direcLight = new BABYLON.DirectionalLight("aDirectionalLight", new BABYLON.Vector3(25, -25, 30), this.scene);
     direcLight.position = new BABYLON.Vector3(-25, 25, -30);
-    direcLight.intensity = 0.5;
+    direcLight.intensity = 1.2;
 
     var light4 = new BABYLON.SpotLight("aspotLight2", new BABYLON.Vector3(-25, 25, -30), new BABYLON.Vector3(25, -25, 30), 6.6, 3, this.scene); //6.6 for sharp
     light4.intensity = 100;
@@ -204,12 +204,13 @@ export default class IslandScene {
     sandMaterial.albedoTexture = new BABYLON.Texture("assets/textures/Sand/Sand_001_COLOR.png", this.scene);
     sandMaterial.bumpTexture = new BABYLON.Texture("assets/textures/Sand/Sand_001_NRM.png", this.scene);
     sandMaterial.ambientTexture = new BABYLON.Texture("assets/textures/Sand/Sand_001_OCC.png", this.scene);
-    sandMaterial.albedoTexture.uScale = 20;
-    sandMaterial.albedoTexture.vScale = 20;
-    sandMaterial.bumpTexture.uScale = 20;
-    sandMaterial.bumpTexture.vScale = 20;
-    sandMaterial.ambientTexture.uScale = 20;
-    sandMaterial.ambientTexture.vScale = 20;
+    let uvScaleNum = 8;
+    sandMaterial.albedoTexture.uScale = uvScaleNum;
+    sandMaterial.albedoTexture.vScale = uvScaleNum;
+    sandMaterial.bumpTexture.uScale = uvScaleNum;
+    sandMaterial.bumpTexture.vScale = uvScaleNum;
+    sandMaterial.ambientTexture.uScale = uvScaleNum;
+    sandMaterial.ambientTexture.vScale = uvScaleNum;
     sandMaterial.roughness = 1;
     sandMaterial.metallic = 0.65;
 
@@ -471,6 +472,11 @@ export default class IslandScene {
     BABYLON.SceneLoader.ImportMesh("", "assets/islandScene/", "grassAndFlowers.babylon", this.scene);
     BABYLON.SceneLoader.ImportMesh("", "assets/islandScene/", "smallWorld.babylon", this.scene);
     BABYLON.SceneLoader.ImportMesh("", "assets/islandScene/", "fishingRod.babylon", this.scene);
+    BABYLON.SceneLoader.ImportMesh("", "assets/islandScene/", "palmTree.babylon", this.scene);
+    // var music = new BABYLON.Sound("IslandTheme", "assets/islandScene/music/islandSong.mp3", this.scene, null, {
+    //     loop: true,
+    //     autoplay: false
+    //   });
     //BABYLON.SceneLoader.ImportMesh("", "assets/islandScene/", "pier.babylon", this.scene);
 
     //BABYLON.SceneLoader.ImportMesh("", "assets/islandScene/", "simplifiedMesh.babylon", this.scene);
@@ -489,6 +495,7 @@ export default class IslandScene {
     let grassArr = [];
     let physImpArr = [];
     let grassBladeAndFlowerArr = [];
+    let palmTreeArr = [];
 
     let pipeline = new BABYLON.DefaultRenderingPipeline("default", true, this.scene, [this.scene.activeCamera]);
     pipeline.depthOfFieldBlurLevel = BABYLON.DepthOfFieldEffectBlurLevel.High;
@@ -551,13 +558,19 @@ export default class IslandScene {
 
         //scene.getLightByName("DirectionalLight").getShadowGenerator().getShadowMap().renderList = receiveShadowsArray;
         scene.meshes.forEach((mesh) => {
-            if (mesh.name.match(/Grass_3/g)
-            ||  mesh.name.match(/Flower_Small_Pink/g) ||  mesh.name.match(/Flower_Small_Pink_\d/g)
+            if (  mesh.name.match(/Flower_Small_Pink/g) ||  mesh.name.match(/Flower_Small_Pink_\d/g)
             ||  mesh.name.match(/Flower_Small_Red/g) ||  mesh.name.match(/Flower_Small_Red_\d/g)
             ||  mesh.name.match(/Flower_Small_Sky_Blue/g) ||  mesh.name.match(/Flower_Small_Sky_Blue_\d/g)
             ||  mesh.name.match(/Flower_Small_Yellow/g) ||  mesh.name.match(/Flower_Small_Yellow_\d/g)) 
             {
                 grassBladeAndFlowerArr.push(mesh);
+                mesh.checkCollisions = false;
+                mesh.freezeWorldMatrix();
+                mesh.setEnabled(false);
+                // mesh.isVisible = false;
+            }
+            if (mesh.name.match(/Grass_3/g)) 
+            {
                 mesh.checkCollisions = false;
                 mesh.freezeWorldMatrix();
                 mesh.setEnabled(false);
@@ -585,6 +598,10 @@ export default class IslandScene {
                 mesh.receiveShadows = true;
                 mesh.checkCollisions = false;
                 mesh.freezeWorldMatrix();
+            }
+            else if ( mesh.name.match(/palmTree/g)) {
+                mesh.freezeWorldMatrix();
+                mesh.setEnabled(false);
             }
             
             //mesh.material.maxSimultaneousLights = 16;
@@ -624,28 +641,47 @@ export default class IslandScene {
         var offsetX;
         var offsetZ;
         let instanceNum = 0;
+        let clumpArr = [];
+        let tree = scene.getMeshByName("palmTree");
 
-        grassBladeAndFlowerArr.forEach((mesh) => {
-            //console.log(mesh.name);
-            if (mesh.name.match(/Grass_\d/g)) {
+        // grassBladeAndFlowerArr.forEach((mesh) => {
+        //     //console.log(mesh.name);
+        //     if (mesh.name.match(/Grass_\d/g)) {
                 instanceNum = 15;
-                for (var i = 0; i<7; i++) {
+                for (var i = 0; i<8; i++) {
                     let targetMesh = scene.getMeshByName("Grass");
-                    let clumpPositionX = targetMesh.position.x+6.5 - Math.random()*13;
-                    let clumpPositionZ = targetMesh.position.z+6.5 - Math.random()*13;
-                    while(clumpPositionX < 0 && clumpPositionX > -3) {
-                        clumpPositionX = targetMesh.position.x+6.5 - Math.random()*13;
+                    let clumpPositionX = targetMesh.position.x+6 - (Math.random()*12);
+                    let clumpPositionZ = targetMesh.position.z+4 - (Math.random()*11);
+                    while( (clumpPositionX < 0 && clumpPositionX > -3) && (clumpPositionZ > 1 && clumpPositionZ < 4)) { //(clumpPositionZ > 1 && clumpPositionZ < 3)
+                        clumpPositionX = targetMesh.position.x+6 - (Math.random()*12);
+                        clumpPositionZ = targetMesh.position.z+4 - (Math.random()*11);
                     }
-                    while(clumpPositionZ > 1 && clumpPositionZ < 3) {
-                        clumpPositionZ = targetMesh.position.z+6.5 - Math.random()*13;
+                    // if (clumpPositionZ < 1) {
+                    //     while(clumpPositionX < 0 && clumpPositionX > -3) {
+                    //         clumpPositionX = targetMesh.position.x+6.5 - Math.random()*13;
+                    //     }
+                    // }
+                    clumpArr.push({x: clumpPositionX, z: clumpPositionZ})
+                    if (i<2) {
+                        let instance = scene.getMeshByName("palmTree").createInstance("palmTree_" + i);
+                        instance.position.x = clumpPositionX;
+                        instance.position.y = 0.08;
+                        instance.position.z = clumpPositionZ;
+                        instance.rotation.y = Math.random() * (2*Math.PI);
+                        //instance.ignoreNonUniformScaling = true;
+                        //instance.alwaysSelectAsActiveMesh = true;
+                        //instance.checkCollisions = false;
+                        instance.physicsImpostor = new BABYLON.PhysicsImpostor(instance, BABYLON.PhysicsImpostor.MeshImpostor,{mass:0, friction:1, restitution: 0},scene);
+                        instance.freezeWorldMatrix();
+                        scene.getLightByName("aDirectionalLight").getShadowGenerator().addShadowCaster(instance);
+                        
                     }
-                    
                     for (var j = 0; j < instanceNum; j++) {
-                        offsetX = 1 - Math.random() * 2; 
-                        offsetZ = 1 - Math.random() * 2;
-                        let instance = mesh.createInstance(mesh.name + "_" + i);
+                        offsetX = 1.1 - (Math.random() * 2.1); 
+                        offsetZ = 1.1 - (Math.random() * 2.1);
+                        let instance = scene.getMeshByName("Grass_3").createInstance("Grass_" + i);
                         instance.scaling = (new BABYLON.Vector3(0.1, 0.1, 0.04));
-                        instance.position.x = clumpPositionX + offsetX;
+                        instance.position.x = clumpPositionX + offsetX; 
                         instance.position.y = targetMesh.position.y+0.08;
                         instance.position.z = clumpPositionZ + offsetZ;
                         //instance.ignoreNonUniformScaling = true;
@@ -655,38 +691,138 @@ export default class IslandScene {
                         //scene.getLightByName("spotLight").getShadowGenerator().addShadowCaster(scene.getMeshByName("Grass_Blade_"+ i));
                     }
                 }
-            }
-            else if (mesh.name.match(/Flower_Small_Pink/g) ||  mesh.name.match(/Flower_Small_Pink_\d/g)
-                ||  mesh.name.match(/Flower_Small_Red/g) ||  mesh.name.match(/Flower_Small_Red_\d/g)
-                ||  mesh.name.match(/Flower_Small_Sky_Blue/g) ||  mesh.name.match(/Flower_Small_Sky_Blue_\d/g)
-                ||  mesh.name.match(/Flower_Small_Yellow/g) ||  mesh.name.match(/Flower_Small_Yellow_\d/g)) {
-                instanceNum = 3;
-                for (var i = 0; i < instanceNum; i++) {
-                    let targetMesh = scene.getMeshByName("Grass");
-                    offsetX = 6 - Math.random()*12;
-                    offsetZ = 6 - Math.random()*12;
-                    // checkRay(0,-1,0,"ground",new BABYLON.Vector3(offsetX, 2.5, offsetZ));
-                    while(offsetX < 0 && offsetX > -3) {
-                        offsetX = 6 - Math.random()*12;
-                    }
-                    while(offsetZ > 1 && offsetZ < 3) {
-                        offsetZ = 6 - Math.random()*12;
-                    }
-                    let instance = mesh.createInstance(mesh.name + "_" + i);
-                    instance.scaling = (new BABYLON.Vector3(0.1, 0.1, 0.04));
-                    instance.position.x = targetMesh.position.x + offsetX;
-                    instance.position.y = targetMesh.position.y+0.15;
-                    instance.position.z = targetMesh.position.z + offsetZ;
-                    //instance.ignoreNonUniformScaling = true;
-                    //instance.alwaysSelectAsActiveMesh = true;
-                    instance.checkCollisions = false;
-                    instance.freezeWorldMatrix();
-                    //scene.getLightByName("spotLight").getShadowGenerator().addShadowCaster(scene.getMeshByName("Grass_Blade_"+ i));
-                }
-            }
+            //}
+            // else if (mesh.name.match(/Flower_Small_Pink/g) ||  mesh.name.match(/Flower_Small_Pink_\d/g)
+            //     ||  mesh.name.match(/Flower_Small_Red/g) ||  mesh.name.match(/Flower_Small_Red_\d/g)
+            //     ||  mesh.name.match(/Flower_Small_Sky_Blue/g) ||  mesh.name.match(/Flower_Small_Sky_Blue_\d/g)
+            //     ||  mesh.name.match(/Flower_Small_Yellow/g) ||  mesh.name.match(/Flower_Small_Yellow_\d/g)) {
+            //     instanceNum = 3;
+            //     for (var i = 0; i < instanceNum; i++) {
+            //         let targetMesh = scene.getMeshByName("Grass");
+            //         offsetX = 6 - Math.random()*12;
+            //         offsetZ = 6 - Math.random()*12;
+            //         // checkRay(0,-1,0,"ground",new BABYLON.Vector3(offsetX, 2.5, offsetZ));
+            //         while(offsetX < 0 && offsetX > -3) {
+            //             offsetX = 6 - Math.random()*12;
+            //         }
+            //         while(offsetZ > 1 && offsetZ < 3) {
+            //             offsetZ = 6 - Math.random()*12;
+            //         }
+            //         let instance = mesh.createInstance(mesh.name + "_" + i);
+            //         instance.scaling = (new BABYLON.Vector3(0.1, 0.1, 0.04));
+            //         instance.position.x = targetMesh.position.x + offsetX;
+            //         instance.position.y = targetMesh.position.y+0.15;
+            //         instance.position.z = targetMesh.position.z + offsetZ;
+            //         //instance.ignoreNonUniformScaling = true;
+            //         //instance.alwaysSelectAsActiveMesh = true;
+            //         instance.checkCollisions = false;
+            //         instance.freezeWorldMatrix();
+            //         //scene.getLightByName("spotLight").getShadowGenerator().addShadowCaster(scene.getMeshByName("Grass_Blade_"+ i));
+            //     }
+            // }
             
+        //});
+        clumpArr.forEach((clump, index) => {
+            instanceNum = 3;
+            for (var i = 0; i < instanceNum; i++) {
+                //let targetMesh = scene.getMeshByName("Grass");
+                offsetX = 1.1 - (Math.random() * 2.2); 
+                offsetZ = 1.1 - (Math.random() * 2.2);
+                // checkRay(0,-1,0,"ground",new BABYLON.Vector3(offsetX, 2.5, offsetZ));
+                // while(offsetX < 0 && offsetX > -3) {
+                //     offsetX = 6 - Math.random()*12;
+                // }
+                // while(offsetZ > 1 && offsetZ < 3) {
+                //     offsetZ = 6 - Math.random()*12;
+                // }
+                let flowerIndex = Math.floor(Math.random()*(grassBladeAndFlowerArr.length-0.1));
+                //console.log(flowerIndex);
+                let instance = grassBladeAndFlowerArr[flowerIndex].createInstance("Flower_" + i*index);
+                instance.scaling = (new BABYLON.Vector3(0.1, 0.1, 0.04));
+                instance.position.x = clump.x + offsetX;
+                instance.position.y = scene.getMeshByName("Grass").position.y+0.15;
+                instance.position.z = clump.z + offsetZ;
+                //instance.ignoreNonUniformScaling = true;
+                //instance.alwaysSelectAsActiveMesh = true;
+                instance.checkCollisions = false;
+                instance.freezeWorldMatrix();
+                //scene.getLightByName("spotLight").getShadowGenerator().addShadowCaster(scene.getMeshByName("Grass_Blade_"+ i));
+                //instance.physicsImpostor = new BABYLON.PhysicsImpostor(instance, BABYLON.PhysicsImpostor.MeshImpostor,{mass:0, friction:1, restitution: 0},scene);
+            }
         });
 
+        instanceNum = 7;
+        let mesh = scene.getMeshByName("palmTree");
+        let targetMesh = scene.getMeshByName("Grass");
+        let offsetY = 0;
+        for (var i = 2; i<5; i++) {
+            // if (i<2) {
+            //     offsetX = targetMesh.position.x+6.5 - Math.random()*13;
+            //     offsetZ = targetMesh.position.z-8.5 + Math.random()*8.8;
+            //     while(offsetX < 0.2 && offsetX > -3.2) {
+            //         offsetX = targetMesh.position.x+6.5 - Math.random()*13; 
+            //     }
+            //     // while(offsetZ < 0.3) {
+            //     //     offsetZ = targetMesh.position.z-8.5 + Math.random()*8.8;
+            //     // }
+            //     offsetY = 0.08;
+            // }
+            // else 
+            if (i<3) {
+                offsetX = targetMesh.position.x-4 - (Math.random()*9);
+                offsetZ = targetMesh.position.z-18 + (Math.random()*23);
+                
+                while((offsetZ > -9 && offsetZ < 5) && (offsetX < 0 && offsetX > -7)) {
+                    offsetX = targetMesh.position.x-4 - (Math.random()*9);
+                    offsetZ = targetMesh.position.z-18 + (Math.random()*23);
+                }
+                // if (offsetZ<5) {
+                //     while((offsetX > -7 && offsetX < 7) ) {
+                //         offsetX = targetMesh.position.x - (Math.random()*13);
+                //     }
+                // }
+                // else {
+                //     offsetX = targetMesh.position.x - (Math.random()*13);
+                // }
+                offsetY = 0;
+            }
+            else {
+                offsetX = targetMesh.position.x+13 - (Math.random()*9);
+                offsetZ = targetMesh.position.z-18 + (Math.random()*23);
+                
+                while((offsetZ > -9 && offsetZ < 5) && (offsetX > 0 && offsetX < 7)) {
+                    offsetZ = targetMesh.position.z-18 + (Math.random()*23);
+                    offsetX = targetMesh.position.x+13 - (Math.random()*9);
+                }
+                // if (offsetZ<5) {
+                //     while((offsetX > 0 && offsetX < 7) ) {
+                //         offsetX = targetMesh.position.x + 12 - (Math.random()*5);
+                //     }
+                // }
+                // else {
+                //     offsetX = targetMesh.position.x + 12 - (Math.random()*12);
+                // }
+                offsetY = 0;
+            }
+
+            let instance = mesh.createInstance(mesh.name + "_" + i);
+            instance.position.x = offsetX;
+            instance.position.y = offsetY;
+            instance.position.z = offsetZ;
+            instance.rotation.y = Math.random() * (2*Math.PI);
+            //instance.ignoreNonUniformScaling = true;
+            //instance.alwaysSelectAsActiveMesh = true;
+            instance.physicsImpostor = new BABYLON.PhysicsImpostor(instance, BABYLON.PhysicsImpostor.MeshImpostor,{mass:0, friction:1, restitution: 0},scene);
+            instance.checkCollisions = false;
+            instance.freezeWorldMatrix();
+            scene.getLightByName("aDirectionalLight").getShadowGenerator().addShadowCaster(instance);
+            scene.beginAnimation(instance.skeleton, instance.skeleton._ranges["Action"].from, instance.skeleton._ranges["Action"].to, true, 1);
+            //console.log(instance);            
+            //instance.material.subMaterials[2].freeze();
+
+        }
+
+        //scene.getMaterialByName("palmTrunk").freeze();
         scene.getLightByName("aDirectionalLight").getShadowGenerator().getShadowMap().refreshRate = 0;
 
 

@@ -115,7 +115,26 @@ export default class Character {
         text1.text = (text1.text == "Press Enter to Begin" ? "" : "Press Enter to Begin");
     }, 1000);
 
-    var music = new BABYLON.Sound("IslandTheme", "assets/islandScene/music/islandSong.mp3", this.scene, null, {
+    var music = new BABYLON.Sound("IslandTheme", "assets/islandScene/music/islandSong.mp3", this.scene, () => {
+      this.scene.actionManager.registerAction(
+        new BABYLON.ExecuteCodeAction(
+            {
+                trigger: BABYLON.ActionManager.OnKeyUpTrigger,
+                parameter: 'm'
+            },
+            () => {
+                if (isMusicPlaying) {
+                  this.scene.getSoundByName("IslandTheme").pause();
+                  isMusicPlaying = false;
+                }
+                else {
+                  this.scene.getSoundByName("IslandTheme").play();
+                  isMusicPlaying = true;
+                }
+            }
+        )
+      );
+    }, {
       loop: true,
       autoplay: false
     });
@@ -293,24 +312,24 @@ export default class Character {
     );
 
     // allow the player to toggle music using m
-    this.scene.actionManager.registerAction(
-      new BABYLON.ExecuteCodeAction(
-          {
-              trigger: BABYLON.ActionManager.OnKeyUpTrigger,
-              parameter: 'm'
-          },
-          () => {
-              if (isMusicPlaying) {
-                music.pause();
-                isMusicPlaying = false;
-              }
-              else {
-                music.play();
-                isMusicPlaying = true;
-              }
-          }
-      )
-    );
+    // this.scene.actionManager.registerAction(
+    //   new BABYLON.ExecuteCodeAction(
+    //       {
+    //           trigger: BABYLON.ActionManager.OnKeyUpTrigger,
+    //           parameter: 'm'
+    //       },
+    //       () => {
+    //           if (isMusicPlaying) {
+    //             this.scene.getSoundByName("IslandTheme").pause();
+    //             isMusicPlaying = false;
+    //           }
+    //           else {
+    //             this.scene.getSoundByName("IslandTheme").play();
+    //             isMusicPlaying = true;
+    //           }
+    //       }
+    //   )
+    // );
     
 
     // allow fly mode to be turned on with u
@@ -932,7 +951,7 @@ export default class Character {
           else if (!this.standing & !jumping) { 
               this.running = false;
               this.standing = true;
-              this.scene.beginAnimation(this.skeleton, 4, 29, true); 
+              this.scene.beginAnimation(this.skeleton, 4, 29, true, 0.8); 
           }  
           if (flyMode) {
               this.character.physicsImpostor.setLinearVelocity(new BABYLON.Vector3(0, 0, 0));
